@@ -158,7 +158,7 @@ namespace DiscordBettingBot.Service
         {
             if (string.IsNullOrEmpty(playerName) || playerName.Length > 254)
             {
-                throw new InvalidMatchNameException(playerName);
+                throw new InvalidPlayerNameException(playerName);
             }
         }
 
@@ -204,7 +204,14 @@ namespace DiscordBettingBot.Service
 
         private void VerifyMatchWaitingToStart(string tournamentName, string matchName)
         {
-            if (_bettingRepository.GetMatch(tournamentName, matchName).Status != MatchStatus.WaitingToStart)
+            var match = _bettingRepository.GetMatch(tournamentName, matchName);
+
+            if (match == null)
+            {
+                throw new MatchDoesNotExistsException(matchName);
+            }
+
+            if (match.Status != MatchStatus.WaitingToStart)
             {
                 throw new MatchNotWaitingToStartException(matchName);
             }
