@@ -1,6 +1,6 @@
-﻿namespace DiscordBettingBot.Service.Dtos
+﻿namespace DiscordBettingBot.Service.Models
 {
-    public class MatchResultDto
+    public class MatchResult
     {
         public Better[] Winners { get; set; }
         public Better[] Losers { get; set; }

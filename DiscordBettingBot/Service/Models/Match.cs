@@ -1,8 +1,8 @@
 ﻿using DiscordBettingBot.Service.Enumerations;
 
-namespace DiscordBettingBot.Service.Dtos
+namespace DiscordBettingBot.Service.Models
 {
-    public class MatchDto
+    public class Match
     {
         public string Name { get; set; }
         public string[] Team1 { get; set; }

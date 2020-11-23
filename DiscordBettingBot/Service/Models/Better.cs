@@ -1,4 +1,4 @@
-﻿namespace DiscordBettingBot.Service.Dtos
+﻿namespace DiscordBettingBot.Service.Models
 {
     public class Better
     {
