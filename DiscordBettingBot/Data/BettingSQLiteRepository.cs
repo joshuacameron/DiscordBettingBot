@@ -1,11 +1,19 @@
 ﻿using DiscordBettingBot.Data.Interfaces;
 using DiscordBettingBot.Service.Models;
 using System;
+using DiscordBettingBot.Settings;
 
 namespace DiscordBettingBot.Data
 {
     public class BettingSQLiteRepository : IBettingRepository
     {
+        private readonly BettingSQLiteSettings _settings;
+
+        public BettingSQLiteRepository(BettingSQLiteSettings settings)
+        {
+            _settings = settings;
+        }
+
         public bool DoesTournamentExist(string tournamentName)
         {
             throw new NotImplementedException();

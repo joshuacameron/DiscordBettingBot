@@ -18,6 +18,19 @@ namespace DiscordBettingBot.Service
 
         public void AddMatch(string tournamentName, string matchName, string[] team1, string[] team2)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidMatchName(matchName);
+
+            foreach (string playerName in team1)
+            {
+                VerifyValidPlayerName(playerName);
+            }
+
+            foreach (string playerName in team2)
+            {
+                VerifyValidPlayerName(playerName);
+            }
+
             VerifyTournamentExists(tournamentName);
             VerifyMatchDoesNotExist(tournamentName, matchName);
 
@@ -26,6 +39,9 @@ namespace DiscordBettingBot.Service
 
         public void StartMatch(string tournamentName, string matchName)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidMatchName(matchName);
+
             VerifyTournamentExists(tournamentName);
             VerifyMatchExists(tournamentName, matchName);
             VerifyMatchWaitingToStart(tournamentName, matchName);
@@ -35,6 +51,9 @@ namespace DiscordBettingBot.Service
 
         public void RemoveMatch(string tournamentName, string matchName)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidMatchName(matchName);
+
             VerifyTournamentExists(tournamentName);
             VerifyMatchExists(tournamentName, matchName);
 
@@ -43,9 +62,12 @@ namespace DiscordBettingBot.Service
 
         public MatchResult DeclareMatchWinner(string tournamentName, string matchName, int teamNumber)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidMatchName(matchName);
+            VerifyValidTeamNumber(teamNumber);
+
             VerifyTournamentExists(tournamentName);
             VerifyMatchRunning(tournamentName, matchName);
-            VerifyTeamNumber(teamNumber);
 
             _bettingRepository.DeclareMatchWinner(tournamentName, matchName, teamNumber);
             return _bettingRepository.GetMatchResult(tournamentName, matchName);
@@ -53,6 +75,9 @@ namespace DiscordBettingBot.Service
 
         public decimal GetBalance(string tournamentName, string betterName)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidBetterName(tournamentName);
+
             VerifyTournamentExists(tournamentName);
             VerifyBetterExists(tournamentName, betterName);
 
@@ -61,6 +86,8 @@ namespace DiscordBettingBot.Service
 
         public Match[] GetAvailableMatches(string tournamentName)
         {
+            VerifyValidTournamentName(tournamentName);
+
             VerifyTournamentExists(tournamentName);
 
             return _bettingRepository.GetAvailableMatches(tournamentName);
@@ -68,16 +95,22 @@ namespace DiscordBettingBot.Service
 
         public void AddBet(string tournamentName, string betterName, string matchName, decimal betAmount)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidBetterName(betterName);
+            VerifyValidMatchName(matchName);
+            VerifyValidBetAmount(betAmount);
+
             VerifyTournamentExists(tournamentName);
             VerifyMatchExists(tournamentName, matchName);
             VerifyMatchWaitingToStart(tournamentName, matchName);
-            VerifyBet(betAmount);
 
             _bettingRepository.AddBet(tournamentName, betterName, matchName, betAmount);
         }
 
         public Leaderboard GetLeaderBoard(string tournamentName)
         {
+            VerifyValidTournamentName(tournamentName);
+
             VerifyTournamentExists(tournamentName);
 
             return _bettingRepository.GetLeaderBoard(tournamentName);
@@ -85,6 +118,9 @@ namespace DiscordBettingBot.Service
 
         public Better GetBetterInfo(string tournamentName, string betterName)
         {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidBetterName(tournamentName);
+
             VerifyTournamentExists(tournamentName);
             VerifyBetterExists(tournamentName, betterName);
 
@@ -93,12 +129,46 @@ namespace DiscordBettingBot.Service
 
         public void StartNewTournament(string tournamentName)
         {
+            VerifyValidTournamentName(tournamentName);
+
             VerifyTournamentDoesNotExist(tournamentName);
 
             _bettingRepository.StartNewTournament(tournamentName);
         }
 
         #region Helpers
+
+        private void VerifyValidTournamentName(string tournamentName)
+        {
+            if (string.IsNullOrEmpty(tournamentName) || tournamentName.Length > 254)
+            {
+                throw new InvalidTournamentNameException(tournamentName);
+            }
+        }
+
+        private void VerifyValidMatchName(string matchName)
+        {
+            if (string.IsNullOrEmpty(matchName) || matchName.Length > 254)
+            {
+                throw new InvalidMatchNameException(matchName);
+            }
+        }
+
+        private void VerifyValidPlayerName(string playerName)
+        {
+            if (string.IsNullOrEmpty(playerName) || playerName.Length > 254)
+            {
+                throw new InvalidMatchNameException(playerName);
+            }
+        }
+
+        private void VerifyValidBetterName(string betterName)
+        {
+            if (string.IsNullOrEmpty(betterName) || betterName.Length > 254)
+            {
+                throw new InvalidBetterNameException(betterName);
+            }
+        }
 
         private void VerifyTournamentExists(string tournamentName)
         {
@@ -156,7 +226,7 @@ namespace DiscordBettingBot.Service
             }
         }
 
-        private static void VerifyBet(decimal betAmount)
+        private static void VerifyValidBetAmount(decimal betAmount)
         {
             if (IsLessThanOrEqualToTwoDecimalPlaces(betAmount) || betAmount < 0.01m)
             {
@@ -164,7 +234,7 @@ namespace DiscordBettingBot.Service
             }
         }
 
-        private static void VerifyTeamNumber(int teamNumber)
+        private static void VerifyValidTeamNumber(int teamNumber)
         {
             if (teamNumber != 1 && teamNumber != 2)
             {
