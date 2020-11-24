@@ -2,9 +2,9 @@
 
 namespace DiscordBettingBot.Service.Exceptions
 {
-    public class InvalidTeamNumber : Exception
+    public class InvalidTeamNumberException : Exception
     {
-        public InvalidTeamNumber(int teamNumber)
+        public InvalidTeamNumberException(int teamNumber)
             : base($"Team number \"{teamNumber}\" is invalid, options are 1 or 2") { }
     }
 }

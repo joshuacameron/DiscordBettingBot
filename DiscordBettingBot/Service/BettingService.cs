@@ -7,6 +7,8 @@ using System;
 
 namespace DiscordBettingBot.Service
 {
+    //TODO: Verify correct state at all times
+    //TODO: Validate VerifyValidBetAmount
     public class BettingService : IBettingService
     {
         private readonly IBettingRepository _bettingRepository;
@@ -67,6 +69,7 @@ namespace DiscordBettingBot.Service
             VerifyValidTeamNumber(teamNumber);
 
             VerifyTournamentExists(tournamentName);
+            VerifyMatchExists(tournamentName, matchName);
             VerifyMatchRunning(tournamentName, matchName);
 
             _bettingRepository.DeclareMatchWinner(tournamentName, matchName, teamNumber);
@@ -76,7 +79,7 @@ namespace DiscordBettingBot.Service
         public decimal GetBalance(string tournamentName, string betterName)
         {
             VerifyValidTournamentName(tournamentName);
-            VerifyValidBetterName(tournamentName);
+            VerifyValidBetterName(betterName);
 
             VerifyTournamentExists(tournamentName);
             VerifyBetterExists(tournamentName, betterName);
@@ -119,7 +122,7 @@ namespace DiscordBettingBot.Service
         public Better GetBetterInfo(string tournamentName, string betterName)
         {
             VerifyValidTournamentName(tournamentName);
-            VerifyValidBetterName(tournamentName);
+            VerifyValidBetterName(betterName);
 
             VerifyTournamentExists(tournamentName);
             VerifyBetterExists(tournamentName, betterName);
@@ -245,14 +248,14 @@ namespace DiscordBettingBot.Service
         {
             if (teamNumber != 1 && teamNumber != 2)
             {
-                throw new InvalidTeamNumber(teamNumber);
+                throw new InvalidTeamNumberException(teamNumber);
             }
         }
 
         private static bool IsLessThanOrEqualToTwoDecimalPlaces(decimal dec)
         {
             decimal value = dec * 100;
-            return value == Math.Floor(value);
+            return value != Math.Floor(value);
         }
 
         #endregion
