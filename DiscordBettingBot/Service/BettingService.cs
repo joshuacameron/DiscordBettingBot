@@ -4,6 +4,7 @@ using DiscordBettingBot.Service.Exceptions;
 using DiscordBettingBot.Service.Interfaces;
 using DiscordBettingBot.Service.Models;
 using System;
+using System.Collections.Generic;
 
 namespace DiscordBettingBot.Service
 {
@@ -87,16 +88,16 @@ namespace DiscordBettingBot.Service
             return _bettingRepository.GetBalance(tournamentName, betterName);
         }
 
-        public Match[] GetAvailableMatches(string tournamentName)
+        public IEnumerable<Match> GetMatches(string tournamentName)
         {
             VerifyValidTournamentName(tournamentName);
 
             VerifyTournamentExists(tournamentName);
 
-            return _bettingRepository.GetAvailableMatches(tournamentName);
+            return _bettingRepository.GetMatches(tournamentName);
         }
 
-        public void AddBet(string tournamentName, string betterName, string matchName, decimal betAmount)
+        public void AddBet(string tournamentName, string betterName, string matchName, decimal betAmount, int teamNumber)
         {
             VerifyValidTournamentName(tournamentName);
             VerifyValidBetterName(betterName);
@@ -107,10 +108,10 @@ namespace DiscordBettingBot.Service
             VerifyMatchExists(tournamentName, matchName);
             VerifyMatchWaitingToStart(tournamentName, matchName);
 
-            _bettingRepository.AddBet(tournamentName, betterName, matchName, betAmount);
+            _bettingRepository.AddBet(tournamentName, betterName, matchName, betAmount, teamNumber);
         }
 
-        public Leaderboard GetLeaderBoard(string tournamentName)
+        public IEnumerable<Better> GetLeaderBoard(string tournamentName)
         {
             VerifyValidTournamentName(tournamentName);
 

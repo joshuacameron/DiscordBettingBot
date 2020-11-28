@@ -458,7 +458,7 @@ namespace DiscordBettingBotUnitTests.Service
             var sut = GetService();
             SetupBettingRepository_DoesTournamentExist_ReturnsTrue();
 
-            sut.GetAvailableMatches(TournamentName);
+            sut.GetMatches(TournamentName);
 
             Verify_DoesTournamentExist(Times.Once());
             Verify_GetAvailableMatches(Times.Once());
@@ -469,7 +469,7 @@ namespace DiscordBettingBotUnitTests.Service
         {
             var sut = GetService();
 
-            Assert.Throws<InvalidTournamentNameException>(() => sut.GetAvailableMatches(InvalidTournamentName));
+            Assert.Throws<InvalidTournamentNameException>(() => sut.GetMatches(InvalidTournamentName));
 
             Verify_DoesTournamentExist(Times.Never());
             Verify_GetAvailableMatches(Times.Never());
@@ -481,7 +481,7 @@ namespace DiscordBettingBotUnitTests.Service
             var sut = GetService();
             SetupBettingRepository_DoesTournamentExist_ReturnsFalse();
 
-            Assert.Throws<TournamentDoesNotExistException>(() => sut.GetAvailableMatches(TournamentName));
+            Assert.Throws<TournamentDoesNotExistException>(() => sut.GetMatches(TournamentName));
 
             Verify_DoesTournamentExist(Times.Once());
             Verify_GetAvailableMatches(Times.Never());
@@ -495,7 +495,7 @@ namespace DiscordBettingBotUnitTests.Service
             SetupBettingRepository_DoesMatchExist_ReturnsTrue();
             SetupBettingRepository_GetMatch_ReturnsWaitingToStart();
 
-            sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount);
+            sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount, ValidTeamNumber);
 
             Verify_DoesTournamentExist(Times.Once());
             Verify_DoesMatchExist(Times.Once());
@@ -509,7 +509,7 @@ namespace DiscordBettingBotUnitTests.Service
             var sut = GetService();
 
             Assert.Throws<InvalidTournamentNameException>(() =>
-                sut.AddBet(InvalidTournamentName, ValidBetterName, ValidMatchName, ValidBetAmount));
+                sut.AddBet(InvalidTournamentName, ValidBetterName, ValidMatchName, ValidBetAmount, ValidTeamNumber));
 
             Verify_DoesTournamentExist(Times.Never());
             Verify_GetMatch(Times.Never());
@@ -522,7 +522,7 @@ namespace DiscordBettingBotUnitTests.Service
             var sut = GetService();
 
             Assert.Throws<InvalidBetterNameException>(() =>
-                sut.AddBet(TournamentName, InvalidBetterName, ValidMatchName, ValidBetAmount));
+                sut.AddBet(TournamentName, InvalidBetterName, ValidMatchName, ValidBetAmount, ValidTeamNumber));
 
             Verify_GetMatch(Times.Never());
             Verify_AddBet(Times.Never());
@@ -534,7 +534,7 @@ namespace DiscordBettingBotUnitTests.Service
             var sut = GetService();
 
             Assert.Throws<InvalidMatchNameException>(() =>
-                sut.AddBet(TournamentName, ValidBetterName, InvalidMatchName, ValidBetAmount));
+                sut.AddBet(TournamentName, ValidBetterName, InvalidMatchName, ValidBetAmount, ValidTeamNumber));
 
             Verify_DoesMatchExist(Times.Never());
             Verify_GetMatch(Times.Never());
@@ -547,7 +547,7 @@ namespace DiscordBettingBotUnitTests.Service
             var sut = GetService();
 
             Assert.Throws<InvalidBetAmountException>(() =>
-                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, InvalidBetAmount));
+                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, InvalidBetAmount, ValidTeamNumber));
 
             Verify_GetMatch(Times.Never());
             Verify_AddBet(Times.Never());
@@ -560,7 +560,7 @@ namespace DiscordBettingBotUnitTests.Service
             SetupBettingRepository_DoesTournamentExist_ReturnsFalse();
 
             Assert.Throws<TournamentDoesNotExistException>(() =>
-                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount));
+                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount, ValidTeamNumber));
 
             Verify_DoesTournamentExist(Times.Once());
             Verify_GetMatch(Times.Never());
@@ -575,7 +575,7 @@ namespace DiscordBettingBotUnitTests.Service
             SetupBettingRepository_DoesMatchExist_ReturnsFalse();
 
             Assert.Throws<MatchDoesNotExistsException>(() =>
-                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount));
+                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount, ValidTeamNumber));
 
             Verify_DoesMatchExist(Times.Once());
             Verify_GetMatch(Times.Never());
@@ -591,7 +591,7 @@ namespace DiscordBettingBotUnitTests.Service
             SetupBettingRepository_GetMatch_ReturnsRunning();
 
             Assert.Throws<MatchNotWaitingToStartException>(() =>
-                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount));
+                sut.AddBet(TournamentName, ValidBetterName, ValidMatchName, ValidBetAmount, ValidTeamNumber));
 
             Verify_GetMatch(Times.Once());
             Verify_AddBet(Times.Never());
@@ -823,12 +823,12 @@ namespace DiscordBettingBotUnitTests.Service
 
         private void Verify_GetAvailableMatches(Times times)
         {
-            _bettingRepository.Verify(m => m.GetAvailableMatches(It.IsAny<string>()), times);
+            _bettingRepository.Verify(m => m.GetMatches(It.IsAny<string>()), times);
         }
 
         private void Verify_AddBet(Times times)
         {
-            _bettingRepository.Verify(m => m.AddBet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>()), times);
+            _bettingRepository.Verify(m => m.AddBet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<int>()), times);
         }
 
         private void Verify_GetLeaderBoard(Times times)
