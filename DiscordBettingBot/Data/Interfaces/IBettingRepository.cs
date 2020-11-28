@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using DiscordBettingBot.Service.Models;
+using DiscordBettingBot.Data.Models;
 
 namespace DiscordBettingBot.Data.Interfaces
 {

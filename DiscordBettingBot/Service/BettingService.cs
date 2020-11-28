@@ -2,9 +2,9 @@
 using DiscordBettingBot.Service.Enumerations;
 using DiscordBettingBot.Service.Exceptions;
 using DiscordBettingBot.Service.Interfaces;
-using DiscordBettingBot.Service.Models;
 using System;
 using System.Collections.Generic;
+using DiscordBettingBot.Data.Models;
 
 namespace DiscordBettingBot.Service
 {

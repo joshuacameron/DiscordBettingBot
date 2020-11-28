@@ -5,7 +5,7 @@ using DiscordBettingBot.Service.Exceptions;
 using DiscordBettingBot.Service.Interfaces;
 using Moq;
 using NUnit.Framework;
-using Match = DiscordBettingBot.Service.Models.Match;
+using Match = DiscordBettingBot.Data.Models.Match;
 
 namespace DiscordBettingBotUnitTests.Service
 {

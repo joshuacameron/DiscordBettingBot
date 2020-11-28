@@ -1,15 +1,14 @@
 ﻿using Dapper;
-using DiscordBettingBot.Data.Exceptions;
 using DiscordBettingBot.Data.Interfaces;
+using DiscordBettingBot.Data.Models;
 using DiscordBettingBot.Service.Enumerations;
-using DiscordBettingBot.Service.Models;
+using DiscordBettingBot.Service.Exceptions;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DiscordBettingBot.Data
 {
-    //TODO: Make transaction safe
     public class BettingSQLiteRepository : IBettingRepository
     {
         private readonly SqliteConnection _sqliteConnection;
@@ -28,62 +27,68 @@ namespace DiscordBettingBot.Data
 
         public void DropTables()
         {
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Tournament");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Match");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Better");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS BetHistory");
             _sqliteConnection.Execute("DROP TABLE IF EXISTS Player");
+            _sqliteConnection.Execute("DROP TABLE IF EXISTS BetHistory");
+            _sqliteConnection.Execute("DROP TABLE IF EXISTS Better");
+            _sqliteConnection.Execute("DROP TABLE IF EXISTS Match");
+            _sqliteConnection.Execute("DROP TABLE IF EXISTS Tournament");
         }
 
         #region Setup
         
         private void Setup()
         {
-            const string createTournamentTableSql = "CREATE TABLE IF NOT EXISTS Tournament (Name TEXT NOT NULL, UNIQUE(Name))";
+            const string createTournamentTableSql = @"CREATE TABLE IF NOT EXISTS Tournament
+                                                    (
+                                                        TournamentId INTEGER PRIMARY KEY,
+                                                        Name TEXT NOT NULL,
+                                                        UNIQUE(Name)
+                                                    )";
             _sqliteConnection.Execute(createTournamentTableSql);
 
             const string createMatchTableSql = @"CREATE TABLE IF NOT EXISTS Match 
                                                 (
+                                                    MatchId INTEGER PRIMARY KEY,
                                                     TournamentId INTEGER NOT NULL,
                                                     Name TEXT NOT NULL,
                                                     Status TEXT NOT NULL,
                                                     WinningTeamNumber INTEGER,
                                                     UNIQUE(TournamentId, Name),
-                                                    FOREIGN KEY(TournamentId) REFERENCES Tournament(rowid)
+                                                    FOREIGN KEY(TournamentId) REFERENCES Tournament(TournamentId)
                                                 )";
             _sqliteConnection.Execute(createMatchTableSql);
 
             const string createBetterTableSql = @"CREATE TABLE IF NOT EXISTS Better
                                                 (
+                                                    BetterId INTEGER PRIMARY KEY,
                                                     Name TEXT NOT NULL,
                                                     TournamentId INTEGER NOT NULL,
                                                     Balance REAL NOT NULL,
+                                                    FOREIGN KEY(TournamentId) REFERENCES Tournament(TournamentId),
                                                     UNIQUE(TournamentId, Name)
                                                 )";
             _sqliteConnection.Execute(createBetterTableSql);
 
             const string createBetHistoryTableSql = @"CREATE TABLE IF NOT EXISTS BetHistory
                                                     (
+                                                        BetId INTEGER PRIMARY KEY,
                                                         BetterId INTEGER NOT NULL,
-                                                        TournamentId INTEGER NOT NULL,
                                                         MatchId INTEGER NOT NULL,
                                                         Amount REAL NOT NULL,
                                                         TeamNumber INTEGER NOT NULL,
                                                         Won INTEGER NOT NULL,
-                                                        FOREIGN KEY(BetterId) REFERENCES Better(rowid),
-                                                        FOREIGN KEY(TournamentId) REFERENCES Tournament(rowid),
-                                                        FOREIGN KEY(MatchId) REFERENCES Match(rowid)
+                                                        FOREIGN KEY(BetterId) REFERENCES Better(BetterId),
+                                                        FOREIGN KEY(MatchId) REFERENCES Match(MatchId)
                                                     )";
             _sqliteConnection.Execute(createBetHistoryTableSql);
 
             const string createPlayerTableSql = @"CREATE TABLE IF NOT EXISTS Player
                                                     (
+                                                        PlayerId INTEGER PRIMARY KEY,
                                                         Name TEXT NOT NULL,
-                                                        TournamentId INTEGER NOT NULL,
                                                         MatchId INTEGER NOT NULL,
                                                         TeamNumber INTEGER NOT NULL,
-                                                        FOREIGN KEY(TournamentId) REFERENCES Tournament(rowid),
-                                                        FOREIGN KEY(MatchId) REFERENCES Match(rowid)
+                                                        FOREIGN KEY(MatchId) REFERENCES Match(MatchId)
                                                     )";
             _sqliteConnection.Execute(createPlayerTableSql);
         }
@@ -127,11 +132,11 @@ namespace DiscordBettingBot.Data
                 var tournamentId = GetTournamentId(tournamentName);
 
                 _sqliteConnection.Execute(sqlMatch,
-                    new { tournamentId, matchName, status = MatchStatus.WaitingToStart.ToString() });
+                    new {tournamentId, matchName, status = MatchStatus.WaitingToStart.ToString()});
 
                 var matchId = GetMatchId(tournamentId, matchName);
 
-                AddPlayers(tournamentId, matchId, team1, team2);
+                AddPlayers(matchId, team1, team2);
 
                 transaction.Commit();
             }
@@ -175,7 +180,7 @@ namespace DiscordBettingBot.Data
 
                 if (bets.Any())
                 {
-                    ReverseBets(tournamentId, matchId, bets);
+                    ReverseBets(matchId, bets);
                 }
 
                 RemovePlayers(matchId);
@@ -227,8 +232,8 @@ namespace DiscordBettingBot.Data
 
                 foreach (var match in matches)
                 {
-                    match.Team1 = GetPlayersOnTeam(tournamentId, match.Id, 1);
-                    match.Team2 = GetPlayersOnTeam(tournamentId, match.Id, 2);
+                    match.Team1 = GetPlayersOnTeam(match.Id, 1).Select(x => x.Name);
+                    match.Team2 = GetPlayersOnTeam(match.Id, 2).Select(x => x.Name);
                 }
 
                 transaction.Commit();
@@ -244,8 +249,8 @@ namespace DiscordBettingBot.Data
 
         public void AddBet(string tournamentName, string betterName, string matchName, decimal betAmount, int teamNumber)
         {
-            const string sql = @"INSERT INTO BetHistory (BetterId, TournamentId, MatchId, Amount, TeamNumber)
-                                    VALUES (@betterId, @tournamentId, @matchId, @amount, @teamNumber)";
+            const string sql = @"INSERT INTO BetHistory (BetterId, MatchId, Amount, TeamNumber)
+                                    VALUES (@betterId, @matchId, @amount, @teamNumber)";
 
             _sqliteConnection.Open();
             var transaction = _sqliteConnection.BeginTransaction();
@@ -254,10 +259,10 @@ namespace DiscordBettingBot.Data
             {
                 var better = GetBetterInfo(tournamentName, betterName);
 
-                var (tournamentId, matchId) = GetTournamentAndMatchId(tournamentName, matchName);
+                var (_, matchId) = GetTournamentAndMatchId(tournamentName, matchName);
 
                 _sqliteConnection.Execute(sql,
-                    new {betterId = better.Id, tournamentId, matchId, amount = betAmount, teamNumber});
+                    new {betterId = better.Id, matchId, amount = betAmount, teamNumber});
 
                 SubtractFromBetterBalance(better.Id, betAmount);
 
@@ -279,9 +284,9 @@ namespace DiscordBettingBot.Data
             {
                 var match = GetMatch(tournamentName, matchName);
 
-                if (match.Status != MatchStatus.Finished)
+                if (match == null)
                 {
-                    throw new MatchNotFinishedException(matchName);
+                    throw new MatchDoesNotExistsException(matchName);
                 }
 
                 var (_, matchId) = GetTournamentAndMatchId(tournamentName, matchName);
@@ -291,8 +296,8 @@ namespace DiscordBettingBot.Data
                 var matchResult = new MatchResult
                 {
                     WinningTeamNumber = match.WinningTeamNumber,
-                    WinningBets = bets.Where(x => x.Won),
-                    LosingBets = bets.Where(x => !x.Won)
+                    WinningBets = bets.Where(x => x.Won == true),
+                    LosingBets = bets.Where(x => x.Won == false)
                 };
 
                 transaction.Commit();
@@ -313,7 +318,7 @@ namespace DiscordBettingBot.Data
 
         public IEnumerable<Better> GetLeaderBoard(string tournamentName)
         {
-            const string sql = @"SELECT Name, Balance FROM Better WHERE TournamentId=@tournamentId";
+            const string sql = @"SELECT BetterId as Id, Name, TournamentId, Balance FROM Better WHERE TournamentId=@tournamentId";
 
             _sqliteConnection.Open();
             var transaction = _sqliteConnection.BeginTransaction();
@@ -342,7 +347,7 @@ namespace DiscordBettingBot.Data
 
         public Better GetBetterInfo(string tournamentName, string betterName)
         {
-            const string sql = "SELECT rowid AS Id, Name, Balance FROM Better WHERE TournamentId=@tournamentId AND BetterName=@betterName";
+            const string sql = "SELECT BetterId AS Id, Name, TournamentId, Balance FROM Better WHERE TournamentId=@tournamentId AND BetterName=@betterName";
 
             _sqliteConnection.Open();
             var transaction = _sqliteConnection.BeginTransaction();
@@ -368,14 +373,14 @@ namespace DiscordBettingBot.Data
 
         public Match GetMatch(string tournamentName, string matchName)
         {
-            const string sql = "SELECT * FROM Match WHERE rowid=@matchId";
+            const string sql = "SELECT MatchId AS Id, TournamentId, Name, Status, WinningTeamNumber FROM Match WHERE MatchId=@matchId";
 
             _sqliteConnection.Open();
             var transaction = _sqliteConnection.BeginTransaction();
 
             try
             {
-                var (tournamentId, matchId) = GetTournamentAndMatchId(tournamentName, matchName);
+                var (_, matchId) = GetTournamentAndMatchId(tournamentName, matchName);
 
                 var match = _sqliteConnection.QueryFirstOrDefault<Match>(sql, new {matchId});
 
@@ -385,8 +390,8 @@ namespace DiscordBettingBot.Data
                     return null;
                 }
 
-                match.Team1 = GetPlayersOnTeam(tournamentId, matchId, 1);
-                match.Team2 = GetPlayersOnTeam(tournamentId, matchId, 2);
+                match.Team1 = GetPlayersOnTeam(matchId, 1).Select(x => x.Name);
+                match.Team2 = GetPlayersOnTeam(matchId, 2).Select(x => x.Name);
 
                 transaction.Commit();
 
@@ -402,24 +407,24 @@ namespace DiscordBettingBot.Data
         #endregion
         #region Helper
 
-        private IEnumerable<string> GetPlayersOnTeam(long tournamentId, long matchId, int teamNumber)
+        private IEnumerable<Player> GetPlayersOnTeam(long matchId, int teamNumber)
         {
             const string sql =
-                "SELECT Name FROM Player WHERE TournamentId=@tournamentId AND MatchId=@matchId and TeamNumber=@teamNumber";
+                "SELECT PlayerId AS Id, Name, MatchId, TeamNumber FROM Player WHERE MatchId=@matchId and TeamNumber=@teamNumber";
 
-            return _sqliteConnection.Query<string>(sql, new {tournamentId, matchId, teamNumber});
+            return _sqliteConnection.Query<Player>(sql, new {matchId, teamNumber});
         }
 
         private long GetTournamentId(string tournamentName)
         {
-            const string sql = "SELECT rowid FROM Tournament WHERE Name=@tournamentName";
+            const string sql = "SELECT TournamentId FROM Tournament WHERE Name=@tournamentName";
 
             return _sqliteConnection.ExecuteScalar<int>(sql, new { tournamentName });
         }
 
         private long GetMatchId(long tournamentId, string matchName)
         {
-            const string sql = "SELECT rowid FROM Match WHERE TournamentId=@tournamentId AND Name=@matchName";
+            const string sql = "SELECT MatchId FROM Match WHERE TournamentId=@tournamentId AND Name=@matchName";
 
             return _sqliteConnection.ExecuteScalar<int>(sql, new { tournamentId, matchName });
         }
@@ -432,18 +437,18 @@ namespace DiscordBettingBot.Data
             return (tournamentId, matchId);
         }
 
-        private void AddPlayers(long tournamentId, long matchId, IEnumerable<string> team1, IEnumerable<string> team2)
+        private void AddPlayers(long matchId, IEnumerable<string> team1, IEnumerable<string> team2)
         {
-            const string sqlPlayer = "INSERT INTO Player (Name, TournamentId, MatchId) VALUES (@name, @tournamentId, @matchId)";
+            const string sqlPlayer = "INSERT INTO Player (Name, MatchId, TeamNumber) VALUES (@name, @matchId, @teamNumber)";
 
             foreach (var player in team1)
             {
-                _sqliteConnection.Execute(sqlPlayer, new { name = player, tournamentId, matchId, teamNumber = 1 });
+                _sqliteConnection.Execute(sqlPlayer, new { name = player, matchId, teamNumber = 1 });
             }
 
             foreach (var player in team2)
             {
-                _sqliteConnection.Execute(sqlPlayer, new { name = player, tournamentId, matchId, teamNumber = 2 });
+                _sqliteConnection.Execute(sqlPlayer, new { name = player, matchId, teamNumber = 2 });
             }
         }
 
@@ -475,13 +480,13 @@ namespace DiscordBettingBot.Data
             _sqliteConnection.Execute(sql, new {matchId});
         }
 
-        private void ReverseBets(long tournamentId, long matchId, IEnumerable<Bet> bets)
+        private void ReverseBets(long matchId, IEnumerable<Bet> bets)
         {
-            const string sql = @"UPDATE Better SET Balance = Balance + @amount WHERE TournamentId=@tournamentId AND Name=@betterName";
+            const string sql = @"UPDATE Better SET Balance = Balance + @amount WHERE BetterId=@betterId";
 
             foreach (var bet in bets)
             {
-                _sqliteConnection.Execute(sql, new { bet.Amount, tournamentId, bet.BetterName });
+                _sqliteConnection.Execute(sql, new { bet.Amount, bet.BetterId });
             }
 
             DeleteBets(matchId);
@@ -496,12 +501,12 @@ namespace DiscordBettingBot.Data
 
         private void ProcessBets(int winningTeamNumber, IEnumerable<Bet> bets)
         {
-            const string betterBalanceSql = @"UPDATE Better SET Balance = Balance + (@amount * 2) WHERE rowid=@betterId";
-            const string updateBetSql = @"Update BetHistory SET Won=@won WHERE BetId=@betId";
+            const string betterBalanceSql = @"UPDATE Better SET Balance = Balance + (@amount * 2) WHERE BetterId=@betterId AND 1=@won";
+            const string updateBetSql = @"UPDATE BetHistory SET Won=@won WHERE BetId=@betId";
 
             foreach (var bet in bets)
             {
-                _sqliteConnection.Execute(betterBalanceSql, new { bet.Amount, bet.BetterId });
+                _sqliteConnection.Execute(betterBalanceSql, new { won = bet.TeamNumber == winningTeamNumber ? 1 : 0, bet.Amount, bet.BetterId });
                 _sqliteConnection.Execute(updateBetSql, new {won = bet.TeamNumber == winningTeamNumber ? 1 : 0, betId = bet.Id});
             }
         }
@@ -522,14 +527,14 @@ namespace DiscordBettingBot.Data
 
         private IEnumerable<Match> GetMatches(long tournamentId)
         {
-            const string sql = @"SELECT Name, Status, rowid AS Id FROM Match WHERE TournamentId=@tournamentId";
+            const string sql = @"SELECT MatchId AS Id, TournamentId, Name, WinningTeamNumber, Status FROM Match WHERE TournamentId=@tournamentId";
 
             return _sqliteConnection.Query<Match>(sql, new {tournamentId});
         }
 
         private void SubtractFromBetterBalance(long betterId, decimal amount)
         {
-            const string sql = @"UPDATE Better SET Balance = Balance - @amount WHERE rowid=@betterId";
+            const string sql = @"UPDATE Better SET Balance = Balance - @amount WHERE BetterId=@betterId";
 
             _sqliteConnection.Execute(sql, new {betterId, amount});
         }
@@ -538,17 +543,17 @@ namespace DiscordBettingBot.Data
         #region Consts
 
         private const string GetBetsSql = @"SELECT
-                                                BetHistory.rowid AS Id,
+                                                BetHistory.BetId AS Id,
                                                 BetHistory.BetterId AS BetterId,
                                                 Better.Name AS BetterName,
                                                 Match.Name AS MatchName,
                                                 Amount,
-                                                TeamNumber,
-                                                WonBet
+                                                Won,
+                                                TeamNumber
                                             FROM
                                                 BetHistory
-                                            JOIN Better ON BetHistory.BetterId = Better.rowid
-                                            JOIN Match ON BetHistory.MatchId = Match.rowid
+                                            JOIN Better ON BetHistory.BetterId = Better.BetterId
+                                            JOIN Match ON BetHistory.MatchId = Match.MatchId
                                             WHERE ";
 
         #endregion
