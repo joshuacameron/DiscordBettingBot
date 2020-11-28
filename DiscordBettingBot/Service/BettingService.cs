@@ -4,6 +4,8 @@ using DiscordBettingBot.Service.Exceptions;
 using DiscordBettingBot.Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using AutoMapper.Internal;
 using DiscordBettingBot.Data.Models;
 
 namespace DiscordBettingBot.Service
@@ -23,27 +25,73 @@ namespace DiscordBettingBot.Service
         {
             VerifyValidTournamentName(tournamentName);
             VerifyValidMatchName(matchName);
+            team1.ForAll(VerifyValidPlayerName);
+            team2.ForAll(VerifyValidPlayerName);
 
-            foreach (string playerName in team1)
+            try
             {
-                VerifyValidPlayerName(playerName);
-            }
+                _bettingRepository.BeginTransaction();
 
-            foreach (string playerName in team2)
+                var tournament = _bettingRepository.GetTournamentByName(tournamentName);
+
+                if (tournament == null)
+                {
+                    throw new TournamentDoesNotExistException(tournamentName);
+                }
+
+                if (_bettingRepository.GetMatchByName(tournament.Id, matchName) != null)
+                {
+                    throw new MatchAlreadyExistsException(matchName);
+                }
+
+                var match = new Match
+                {
+                    TournamentId = tournament.Id,
+                    Name = matchName,
+                    Status = MatchStatus.WaitingToStart
+                };
+
+                var matchId = _bettingRepository.InsertMatch(match);
+
+                var players = new List<Player>();
+                players.AddRange(team1.Select(x => new Player {MatchId = matchId, Name = x, TeamNumber = 1}));
+                players.AddRange(team2.Select(x => new Player {MatchId = matchId, Name = x, TeamNumber = 2}));
+
+                _bettingRepository.InsertPlayers(players);
+ 
+                _bettingRepository.CommitTransaction();
+            }
+            catch
             {
-                VerifyValidPlayerName(playerName);
+                _bettingRepository.RollbackTransaction();
             }
-
-            VerifyTournamentExists(tournamentName);
-            VerifyMatchDoesNotExist(tournamentName, matchName);
-
-            _bettingRepository.AddMatch(tournamentName, matchName, team1, team2);
         }
 
         public void StartMatch(string tournamentName, string matchName)
         {
             VerifyValidTournamentName(tournamentName);
             VerifyValidMatchName(matchName);
+            
+            try
+            {
+                _bettingRepository.BeginTransaction();
+
+                var tournament = _bettingRepository.GetTournamentByName(tournamentName);
+
+                if (tournament == null)
+                {
+                    throw new TournamentDoesNotExistException(tournamentName);
+                }
+
+
+
+                _bettingRepository.CommitTransaction();
+            }
+            catch
+            {
+                _bettingRepository.RollbackTransaction();
+            }
+
 
             VerifyTournamentExists(tournamentName);
             VerifyMatchExists(tournamentName, matchName);
@@ -60,7 +108,7 @@ namespace DiscordBettingBot.Service
             VerifyTournamentExists(tournamentName);
             VerifyMatchExists(tournamentName, matchName);
 
-            _bettingRepository.RemoveMatch(tournamentName, matchName);
+            _bettingRepository.DeleteMatch(tournamentName, matchName);
         }
 
         public MatchResult DeclareMatchWinner(string tournamentName, string matchName, int teamNumber)
@@ -174,17 +222,21 @@ namespace DiscordBettingBot.Service
             }
         }
 
-        private void VerifyTournamentExists(string tournamentName)
+        private Tournament VerifyTournamentExists(string tournamentName)
         {
-            if (!_bettingRepository.DoesTournamentExist(tournamentName))
+            var tournament = _bettingRepository.GetTournamentByName(tournamentName);
+
+            if (tournament == null)
             {
                 throw new TournamentDoesNotExistException(tournamentName);
             }
+
+            return tournament;
         }
 
         private void VerifyTournamentDoesNotExist(string tournamentName)
         {
-            if (_bettingRepository.DoesTournamentExist(tournamentName))
+            if (_bettingRepository.GetTournamentByName(tournamentName) != null)
             {
                 throw new TournamentAlreadyExistsException(tournamentName);
             }

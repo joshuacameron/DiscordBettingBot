@@ -11,7 +11,7 @@ namespace DiscordBettingBotUnitTests.Service
 {
     public class BettingServiceTests
     {
-        private Mock<IBettingRepository> _bettingRepository;
+        private Mock<IBettingRepository3> _bettingRepository;
 
         #region Consts
         private const string TournamentName = "TournamentName";
@@ -696,7 +696,7 @@ namespace DiscordBettingBotUnitTests.Service
         #region Getters
         private IBettingService GetService()
         {
-            _bettingRepository = new Mock<IBettingRepository>();
+            _bettingRepository = new Mock<IBettingRepository3>();
 
             return new BettingService(_bettingRepository.Object);
         }

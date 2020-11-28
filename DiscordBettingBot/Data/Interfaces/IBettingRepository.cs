@@ -1,24 +1,40 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using DiscordBettingBot.Data.Models;
+using DiscordBettingBot.Service.Enumerations;
 
 namespace DiscordBettingBot.Data.Interfaces
 {
     public interface IBettingRepository
     {
-        bool DoesTournamentExist(string tournamentName);
-        bool DoesMatchExist(string tournamentName, string matchName);
-        bool DoesBetterExist(string tournamentName, string betterName);
-        void AddMatch(string tournamentName, string matchName, IEnumerable<string> team1, IEnumerable<string> team2);
-        void StartMatch(string tournamentName, string matchName);
-        void RemoveMatch(string tournamentName, string matchName);
-        void DeclareMatchWinner(string tournamentName, string matchName, int teamNumber);
-        MatchResult GetMatchResult(string tournamentName, string matchName);
-        decimal GetBalance(string tournamentName, string betterName);
-        IEnumerable<Match> GetMatches(string tournamentName);
-        void AddBet(string tournamentName, string betterName, string matchName, decimal betAmount, int teamNumber);
-        IEnumerable<Better> GetLeaderBoard(string tournamentName);
-        Better GetBetterInfo(string tournamentName, string betterName);
-        void StartNewTournament(string tournamentName);
-        Match GetMatch(string tournamentName, string matchName);
+        void BeginTransaction();
+        void CommitTransaction();
+        void RollbackTransaction();
+
+        Tournament GetTournamentByName(string tournamentName);
+        void InsertTournament(string tournamentName);
+
+        long InsertMatch(Match match);
+        Match GetMatchByName(long tournamentId, string matchName);
+        void UpdateMatchStatus(long matchId, MatchStatus matchStatus);
+        void UpdateMatchWinningTeamNumber(long matchId, int winningTeamNumber);
+        void DeleteMatch(long matchId);
+        List<Match> GetMatchesByTournamentId(long tournamentId);
+
+        void InsertPlayers(List<Player> players);
+        void DeletePlayerByPlayerIds(List<long> playerIds);
+
+        List<Bet> GetBetsByMatchId(long matchId);
+        void AddToBetterAmounts(List<long> betterIds, List<decimal> amounts);
+        void UpdateBets(List<Bet> bets);
+        void AddBet(Bet bet);
+
+        MatchResult GetMatchResult(long matchId);
+
+        Better GetBetterByName(long tournamentId, string betterName);
+        List<Better> GetBetterByTournamentId(long tournamentId);
     }
 }
