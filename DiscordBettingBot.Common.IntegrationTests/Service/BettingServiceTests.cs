@@ -577,7 +577,7 @@ namespace DiscordBettingBot.Common.IntegrationTests.Service
 
         private bool DoesTournamentExist(string tournamentName)
         {
-            return _bettingRepository.GetTournamentByName(ValidTournamentName) != null;
+            return _bettingRepository.GetTournamentByName(tournamentName) != null;
         }
 
         private Match GetMatch(string tournamentName, string matchName)
