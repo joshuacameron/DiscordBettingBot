@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiscordBettingBot.Service.Exceptions
+namespace DiscordBettingBot.Common.Service.Exceptions
 {
     public class TournamentDoesNotExistException : Exception
     {

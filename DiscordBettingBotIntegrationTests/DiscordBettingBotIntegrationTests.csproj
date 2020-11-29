@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DiscordBettingBot\DiscordBettingBot.csproj" />
+    <ProjectReference Include="..\DiscordBettingBot\DiscordBettingBot.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

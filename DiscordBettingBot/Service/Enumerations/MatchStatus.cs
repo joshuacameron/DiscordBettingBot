@@ -1,4 +1,4 @@
-﻿namespace DiscordBettingBot.Service.Enumerations
+﻿namespace DiscordBettingBot.Common.Service.Enumerations
 {
     public enum MatchStatus
     {

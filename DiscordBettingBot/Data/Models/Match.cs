@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using DiscordBettingBot.Service.Enumerations;
+﻿using DiscordBettingBot.Common.Service.Enumerations;
+using System.Collections.Generic;
 
-namespace DiscordBettingBot.Data.Models
+namespace DiscordBettingBot.Common.Data.Models
 {
     public class Match
     {

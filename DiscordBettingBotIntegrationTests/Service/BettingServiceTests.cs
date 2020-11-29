@@ -1,10 +1,10 @@
 ﻿using Autofac;
-using DiscordBettingBot.Data.Interfaces;
-using DiscordBettingBot.Data.Models;
-using DiscordBettingBot.Service;
-using DiscordBettingBot.Service.Enumerations;
-using DiscordBettingBot.Service.Exceptions;
-using DiscordBettingBot.Service.Interfaces;
+using DiscordBettingBot.Common.Data.Interfaces;
+using DiscordBettingBot.Common.Data.Models;
+using DiscordBettingBot.Common.Service;
+using DiscordBettingBot.Common.Service.Enumerations;
+using DiscordBettingBot.Common.Service.Exceptions;
+using DiscordBettingBot.Common.Service.Interfaces;
 using NUnit.Framework;
 using System.Linq;
 

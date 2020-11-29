@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DiscordBettingBot.Data.Models
+namespace DiscordBettingBot.Common.Data.Models
 {
     public class Better
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace DiscordBettingBot.Service.Extension
+namespace DiscordBettingBot.Common.Service.Extension
 {
     public static class MyEnumExtensions
     {

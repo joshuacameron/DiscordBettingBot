@@ -1,8 +1,8 @@
-﻿using DiscordBettingBot.Data.Models;
-using DiscordBettingBot.Service.Enumerations;
+﻿using DiscordBettingBot.Common.Data.Models;
+using DiscordBettingBot.Common.Service.Enumerations;
 using System.Collections.Generic;
 
-namespace DiscordBettingBot.Data.Interfaces
+namespace DiscordBettingBot.Common.Data.Interfaces
 {
     public interface IBettingRepository
     {

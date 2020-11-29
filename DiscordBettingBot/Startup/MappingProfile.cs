@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace DiscordBettingBot.Startup
+namespace DiscordBettingBot.Common.Startup
 {
     public class MappingProfile : Profile
     {

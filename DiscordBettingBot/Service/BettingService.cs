@@ -1,14 +1,14 @@
 ﻿using AutoMapper.Internal;
-using DiscordBettingBot.Data.Interfaces;
-using DiscordBettingBot.Data.Models;
-using DiscordBettingBot.Service.Enumerations;
-using DiscordBettingBot.Service.Exceptions;
-using DiscordBettingBot.Service.Interfaces;
+using DiscordBettingBot.Common.Data.Interfaces;
+using DiscordBettingBot.Common.Data.Models;
+using DiscordBettingBot.Common.Service.Enumerations;
+using DiscordBettingBot.Common.Service.Exceptions;
+using DiscordBettingBot.Common.Service.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DiscordBettingBot.Service
+namespace DiscordBettingBot.Common.Service
 {
     public class BettingService : IBettingService
     {

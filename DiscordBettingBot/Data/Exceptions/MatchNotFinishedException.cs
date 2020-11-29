@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiscordBettingBot.Data.Exceptions
+namespace DiscordBettingBot.Common.Data.Exceptions
 {
     public class MatchNotFinishedException : Exception
     {

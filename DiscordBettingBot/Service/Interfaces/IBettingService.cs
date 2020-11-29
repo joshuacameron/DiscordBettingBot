@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using DiscordBettingBot.Data.Models;
+﻿using DiscordBettingBot.Common.Data.Models;
+using System.Collections.Generic;
 
-namespace DiscordBettingBot.Service.Interfaces
+namespace DiscordBettingBot.Common.Service.Interfaces
 {
     public interface IBettingService
     {

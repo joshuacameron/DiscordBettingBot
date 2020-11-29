@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using DiscordBettingBot.Data.Interfaces;
-using DiscordBettingBot.Data.Models;
-using DiscordBettingBot.Service.Enumerations;
+using DiscordBettingBot.Common.Data.Interfaces;
+using DiscordBettingBot.Common.Data.Models;
+using DiscordBettingBot.Common.Service.Enumerations;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DiscordBettingBot.Data
+namespace DiscordBettingBot.Common.Data
 {
     public class BettingSQLiteRepository : IBettingRepository
     {

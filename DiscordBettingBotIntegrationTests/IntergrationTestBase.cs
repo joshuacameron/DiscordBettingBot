@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using AutoMapper;
-using DiscordBettingBot.Startup;
+using DiscordBettingBot.Common.Common.Startup;
+using DiscordBettingBot.Common.Startup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

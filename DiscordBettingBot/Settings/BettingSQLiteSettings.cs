@@ -1,4 +1,4 @@
-﻿namespace DiscordBettingBot.Settings
+﻿namespace DiscordBettingBot.Common.Settings
 {
     public class BettingSQLiteSettings
     {

@@ -1,14 +1,14 @@
 ﻿using Autofac;
-using DiscordBettingBot.Settings;
+using DiscordBettingBot.Common.Data;
+using DiscordBettingBot.Common.Data.Interfaces;
+using DiscordBettingBot.Common.Settings;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Reflection;
-using DiscordBettingBot.Data;
-using DiscordBettingBot.Data.Interfaces;
-using Microsoft.Data.Sqlite;
 using Module = Autofac.Module;
 
-namespace DiscordBettingBot.Startup
+namespace DiscordBettingBot.Common.Common.Startup
 {
     public class CommonModule : Module
     {
