@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBettingBot.Common", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBettingBot.Common.IntegrationTests", "DiscordBettingBot.Common.IntegrationTests\DiscordBettingBot.Common.IntegrationTests.csproj", "{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBettingBot", "DiscordBettingBot\DiscordBettingBot.csproj", "{C945D9B0-4CC3-4F3B-9E11-A38D3971095C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C945D9B0-4CC3-4F3B-9E11-A38D3971095C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C945D9B0-4CC3-4F3B-9E11-A38D3971095C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C945D9B0-4CC3-4F3B-9E11-A38D3971095C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C945D9B0-4CC3-4F3B-9E11-A38D3971095C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
