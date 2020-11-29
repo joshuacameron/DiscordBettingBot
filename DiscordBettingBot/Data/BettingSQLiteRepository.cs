@@ -18,21 +18,21 @@ namespace DiscordBettingBot.Data
         {
             _sqliteConnection = sqliteConnection;
 
+            Setup();
+
             if (refresh)
             {
-                DropTables();
+                TruncateTables();
             }
-
-            Setup();
         }
 
-        public void DropTables()
+        public void TruncateTables()
         {
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Player");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS BetHistory");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Better");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Match");
-            _sqliteConnection.Execute("DROP TABLE IF EXISTS Tournament");
+            _sqliteConnection.Execute("DELETE FROM Player");
+            _sqliteConnection.Execute("DELETE FROM BetHistory");
+            _sqliteConnection.Execute("DELETE FROM Better");
+            _sqliteConnection.Execute("DELETE FROM Match");
+            _sqliteConnection.Execute("DELETE FROM Tournament");
         }
 
         #region Setup

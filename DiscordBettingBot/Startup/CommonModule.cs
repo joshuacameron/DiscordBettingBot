@@ -31,6 +31,7 @@ namespace DiscordBettingBot.Startup
             {
                 var settings = c.Resolve<BettingSQLiteSettings>();
                 var sqliteConnection = new SqliteConnection(settings.ConnectionString);;
+                sqliteConnection.Open();
                 return new BettingSQLiteRepository(sqliteConnection, true);
             }).As<IBettingRepository>();
         }
