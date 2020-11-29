@@ -433,4 +433,4 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-appsetting.json
+appsettings.json
