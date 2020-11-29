@@ -14,6 +14,7 @@ namespace DiscordBettingBot.Service.Interfaces
         void AddBet(string tournamentName, string betterName, string matchName, decimal betAmount, int teamNumber);
         IEnumerable<Better> GetLeaderBoard(string tournamentName);
         Better GetBetterInfo(string tournamentName, string betterName);
+        void AddBetter(string tournamentName, string betterName, decimal initialBalance);
         void StartNewTournament(string tournamentName);
     }
 }

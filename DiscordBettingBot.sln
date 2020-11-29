@@ -5,9 +5,7 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBettingBot", "DiscordBettingBot\DiscordBettingBot.csproj", "{E8F45F39-1ACF-48E6-A1D3-0A4848787CE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBettingBotUnitTests", "DiscordBettingBotUnitTests\DiscordBettingBotUnitTests.csproj", "{B9B19347-EDB1-489F-BD83-58934E212899}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBettingBotIntegrationTests", "DiscordBettingBotIntegrationTests\DiscordBettingBotIntegrationTests.csproj", "{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordBettingBotIntegrationTests", "DiscordBettingBotIntegrationTests\DiscordBettingBotIntegrationTests.csproj", "{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +17,6 @@ Global
 		{E8F45F39-1ACF-48E6-A1D3-0A4848787CE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8F45F39-1ACF-48E6-A1D3-0A4848787CE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8F45F39-1ACF-48E6-A1D3-0A4848787CE5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9B19347-EDB1-489F-BD83-58934E212899}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9B19347-EDB1-489F-BD83-58934E212899}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9B19347-EDB1-489F-BD83-58934E212899}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9B19347-EDB1-489F-BD83-58934E212899}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDB1F6EE-C9F9-4F04-8CC2-2FD52A311DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
