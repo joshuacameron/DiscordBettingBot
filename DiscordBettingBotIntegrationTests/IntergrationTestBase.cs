@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.IO;
 
-namespace DiscordBettingBotIntegrationTests
+namespace DiscordBettingBot.Common.IntegrationTests
 {
     public class IntegrationTestBase
     {

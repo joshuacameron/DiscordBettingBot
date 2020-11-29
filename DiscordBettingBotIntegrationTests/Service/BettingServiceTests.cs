@@ -8,7 +8,7 @@ using DiscordBettingBot.Common.Service.Interfaces;
 using NUnit.Framework;
 using System.Linq;
 
-namespace DiscordBettingBotIntegrationTests.Service
+namespace DiscordBettingBot.Common.IntegrationTests.Service
 {
     public class BettingServiceTests : IntegrationTestBase
     {
