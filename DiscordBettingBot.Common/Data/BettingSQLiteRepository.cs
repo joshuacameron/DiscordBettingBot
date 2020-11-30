@@ -22,11 +22,11 @@ namespace DiscordBettingBot.Common.Data
 
             if (refresh)
             {
-                TruncateTables();
+                TruncateDatabase();
             }
         }
 
-        public void TruncateTables()
+        public void TruncateDatabase()
         {
             _sqliteConnection.Execute("DELETE FROM Player");
             _sqliteConnection.Execute("DELETE FROM BetHistory");
@@ -245,38 +245,11 @@ namespace DiscordBettingBot.Common.Data
             _sqliteConnection.Execute(sql, bet);
         }
 
-        public MatchResult GetMatchResult(long matchId)
-        {
-            var bets = GetBetsByMatchId(matchId);
-            var match = GetMatchByMatchId(matchId);
-
-            return new MatchResult()
-            {
-                WinningTeamNumber = match.WinningTeamNumber,
-                WinningBets = bets.Where(x => x.Won == true),
-                LosingBets = bets.Where(x => x.Won == false)
-            };
-        }
-
         public void InsertBetter(long tournamentId, string betterName, decimal initialBalance)
         {
             const string sql = @"INSERT INTO Better (Name, TournamentId, Balance) VALUES (@betterName, @tournamentId, @initialBalance)";
 
             _sqliteConnection.Execute(sql, new { betterName, tournamentId, initialBalance});
-        }
-
-        private Match GetMatchByMatchId(long matchId)
-        {
-            const string sql = @"SELECT * FROM Match WHERE Id=@matchId";
-
-            var match = _sqliteConnection.QueryFirstOrDefault<Match>(sql, new {matchId});
-
-            var players = GetPlayerByMatchId(match.Id);
-
-            match.Team1 = players.Where(x => x.TeamNumber == 1).ToList();
-            match.Team2 = players.Where(x => x.TeamNumber == 2).ToList();
-
-            return match;
         }
 
         public Better GetBetterByName(long tournamentId, string betterName)
@@ -295,23 +268,26 @@ namespace DiscordBettingBot.Common.Data
             return better;
         }
 
-        private Better GetBetterById(long betterId)
+        public List<Better> GetBettersByIds(List<long> betterIds)
         {
-            const string sql = @"SELECT * FROM Better WHERE Id=@betterId";
+            const string sql = @"SELECT * FROM Better WHERE Id IN @betterIds";
 
-            var better = _sqliteConnection.QueryFirstOrDefault<Better>(sql, new {betterId});
+            var betters = _sqliteConnection.Query<Better>(sql, new {betterIds}).ToList();
 
-            if (better == null)
+            if (!betters.Any())
             {
-                return null;
+                return new List<Better>();
             }
 
-            better.Bets = GetBetsByBetterId(betterId);
+            foreach (var better in betters)
+            {
+                better.Bets = GetBetsByBetterId(better.Id);
+            }
 
-            return better;
+            return betters;
         }
 
-        public List<Better> GetBetterByTournamentId(long tournamentId)
+        public List<Better> GetBettersByTournamentId(long tournamentId)
         {
             const string sql = @"SELECT * FROM Better WHERE TournamentId=@tournamentId";
 

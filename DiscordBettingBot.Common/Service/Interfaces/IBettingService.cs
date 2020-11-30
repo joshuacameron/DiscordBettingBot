@@ -5,6 +5,7 @@ namespace DiscordBettingBot.Common.Service.Interfaces
 {
     public interface IBettingService
     {
+        void TruncateDatabase();
         void AddMatch(string tournamentName, string matchName, string[] team1, string[] team2);
         void StartMatch(string tournamentName, string matchName);
         void RemoveMatch(string tournamentName, string matchName);
@@ -16,5 +17,6 @@ namespace DiscordBettingBot.Common.Service.Interfaces
         Better GetBetterInfo(string tournamentName, string betterName);
         void AddBetter(string tournamentName, string betterName, decimal initialBalance);
         void StartNewTournament(string tournamentName);
+        List<Player> GetPlayersByMatch(string tournamentName, string matchName);
     }
 }

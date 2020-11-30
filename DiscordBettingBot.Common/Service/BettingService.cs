@@ -19,6 +19,11 @@ namespace DiscordBettingBot.Common.Service
             _bettingRepository = bettingRepository;
         }
 
+        public void TruncateDatabase()
+        {
+            _bettingRepository.TruncateDatabase();
+        }
+
         public void AddMatch(string tournamentName, string matchName, string[] team1, string[] team2)
         {
             VerifyValidTournamentName(tournamentName);
@@ -173,11 +178,20 @@ namespace DiscordBettingBot.Common.Service
                     payouts.Select(x => x.Amount).ToList()
                 );
 
-                var matchResult = _bettingRepository.GetMatchResult(match.Id);
+                var matchResult2 = new MatchResult()
+                {
+                    Id = match.Id,
+                    MatchName = matchName,
+                    WinningTeamNumber = teamNumber,
+                    Bets = bets,
+                    MatchBetters = _bettingRepository.GetBettersByIds(bets.Select(x => x.BetterId).Distinct().ToList()),
+                    WinningPlayers = _bettingRepository.GetPlayerByMatchId(match.Id)
+                        .Where(x => x.TeamNumber == match.WinningTeamNumber).Select(x => x.Name).ToArray()
+                };
 
                 _bettingRepository.CommitTransaction();
 
-                return matchResult;
+                return matchResult2;
             }
             catch
             {
@@ -245,6 +259,11 @@ namespace DiscordBettingBot.Common.Service
                     throw new BetterDoesNotExistException(betterName);
                 }
 
+                if (betAmount > better.Balance)
+                {
+                    throw new InsufficientFundsException(betAmount, better.Balance);
+                }
+
                 var bet = new Bet
                 {
                     Amount = betAmount,
@@ -276,7 +295,7 @@ namespace DiscordBettingBot.Common.Service
 
                 var tournament = GetTournamentByName(tournamentName);
 
-                var betters = _bettingRepository.GetBetterByTournamentId(tournament.Id).OrderByDescending(x => x.Balance);
+                var betters = _bettingRepository.GetBettersByTournamentId(tournament.Id).OrderByDescending(x => x.Balance);
 
                 _bettingRepository.CommitTransaction();
 
@@ -358,6 +377,32 @@ namespace DiscordBettingBot.Common.Service
                 _bettingRepository.InsertTournament(tournamentName);
 
                 _bettingRepository.CommitTransaction();
+            }
+            catch
+            {
+                _bettingRepository.RollbackTransaction();
+                throw;
+            }
+        }
+
+        public List<Player> GetPlayersByMatch(string tournamentName, string matchName)
+        {
+            VerifyValidTournamentName(tournamentName);
+            VerifyValidMatchName(tournamentName);
+
+            try
+            {
+                _bettingRepository.BeginTransaction();
+
+                var tournament = _bettingRepository.GetTournamentByName(tournamentName);
+
+                var match = _bettingRepository.GetMatchByName(tournament.Id, matchName);
+
+                var players = _bettingRepository.GetPlayerByMatchId(match.Id);
+
+                _bettingRepository.CommitTransaction();
+
+                return players;
             }
             catch
             {

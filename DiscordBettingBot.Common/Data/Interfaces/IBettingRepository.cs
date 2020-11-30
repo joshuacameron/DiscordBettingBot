@@ -6,6 +6,8 @@ namespace DiscordBettingBot.Common.Data.Interfaces
 {
     public interface IBettingRepository
     {
+        void TruncateDatabase();
+
         void BeginTransaction();
         void CommitTransaction();
         void RollbackTransaction();
@@ -30,9 +32,9 @@ namespace DiscordBettingBot.Common.Data.Interfaces
         void AddBet(Bet bet);
         void DeleteBetsById(List<long> betIds);
 
-        MatchResult GetMatchResult(long matchId);
         void InsertBetter(long tournamentId, string betterName, decimal initialBalance);
         Better GetBetterByName(long tournamentId, string betterName);
-        List<Better> GetBetterByTournamentId(long tournamentId);
+        List<Better> GetBettersByTournamentId(long tournamentId);
+        List<Better> GetBettersByIds(List<long> betterIds);
     }
 }
